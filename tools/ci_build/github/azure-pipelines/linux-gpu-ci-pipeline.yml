@@ -46,7 +46,10 @@ jobs:
     CCACHE_DIR: $(Pipeline.Workspace)/ccache
   workspace:
     clean: all
-  pool: onnxruntime-Ubuntu2004-AMD-CPU
+  pool:
+    name: onnxruntime-Ubuntu2004-AMD-CPU
+    demands:
+      - ImageVersionOverride -equals 1.0.345009
   steps:
   - task: mspremier.PostBuildCleanup.PostBuildCleanup-task.PostBuildCleanup@3
     displayName: 'Clean Agent Directories'
@@ -137,7 +140,10 @@ jobs:
     skipComponentGovernanceDetection: true
   workspace:
     clean: all
-  pool: Onnxruntime-Linux-GPU-T4
+  pool:
+    name: Onnxruntime-Linux-GPU-T4
+    demands:
+      - ImageVersionOverride -equals 1.0.345009
   dependsOn:
   - Linux_Build
   steps:
