@@ -19,6 +19,7 @@ if(NOT composable_kernel_POPULATED)
   add_library(onnxruntime_composable_kernel_includes INTERFACE)
   target_include_directories(onnxruntime_composable_kernel_includes INTERFACE
     ${composable_kernel_SOURCE_DIR}/include
+    ${composable_kernel_BINARY_DIR}/include
     ${composable_kernel_SOURCE_DIR}/library/include)
   target_compile_definitions(onnxruntime_composable_kernel_includes INTERFACE __fp32__ __fp16__ __bf16__)
 endif()
