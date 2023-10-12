@@ -32,5 +32,19 @@ class PythonOpRewriter : public RewriteRule {
   Status Apply(Graph& graph, Node& node, RewriteRuleEffect& rule_effect, const logging::Logger& logger) const override;
 };
 
+class PythonOpPriorityRewriter : public RewriteRule {
+ public:
+  PythonOpPriorityRewriter() noexcept : RewriteRule("PythonOpPriorityRewriter") {}
+
+  std::vector<std::string> TargetOpTypes() const noexcept override {
+    return {"PythonOp", "PythonOpGrad"};
+  }
+
+ private:
+  bool SatisfyCondition(const Graph& graph, const Node& node, const logging::Logger& logger) const override;
+
+  Status Apply(Graph& graph, Node& node, RewriteRuleEffect& rule_effect, const logging::Logger& logger) const override;
+};
+
 }  // namespace onnxruntime
 #endif

@@ -76,6 +76,9 @@
 #include "orttraining/core/optimizer/bitmask_dropout_replacement.h"
 #include "orttraining/core/optimizer/sce_loss_grad_bias_fusion.h"
 #include "orttraining/core/optimizer/memory_optimizer.h"
+#ifdef ENABLE_TRAINING_TORCH_INTEROP
+#include "orttraining/core/optimizer/pythonop_rewriter.h"
+#endif
 #endif
 #ifdef ENABLE_TRITON
 #include "orttraining/core/optimizer/triton_fusion.h"
@@ -129,6 +132,9 @@ InlinedVector<std::unique_ptr<RewriteRule>> GenerateRewriteRules(
       rules.push_back(std::make_unique<ConvBNFusion>());
       rules.push_back(std::make_unique<ClipQuantFusion>());
       rules.push_back(std::make_unique<ReluQuantFusion>());
+#ifdef ENABLE_TRAINING_TORCH_INTEROP
+      rules.push_back(std::make_unique<PythonOpPriorityRewriter>());
+#endif
       break;
 
     case TransformerLevel::Level2:

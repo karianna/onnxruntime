@@ -109,6 +109,39 @@ bool PythonOpRewriter::SatisfyCondition(const Graph&, const Node&, const logging
   return true;
 }
 
+Status PythonOpPriorityRewriter::Apply(Graph&, Node& node, RewriteRuleEffect& rule_effect, const logging::Logger&) const {
+  bool modified = false;
+
+  if (graph_utils::IsSupportedOptypeVersionAndDomain(node, "PythonOp", {1}, kMSDomain)) {
+    auto func_name = static_cast<std::string>(node.GetAttributes().at("func_name").s());
+    if (func_name == "onnxruntime.training.utils.hooks._zero_offload_subscriber.ORTZeROOffloadPreForwardFunction") {
+      node.SetPriority(static_cast<int>(ExecutionPriority::LOCAL_LOW));
+      modified = true;
+    } else if (func_name == "onnxruntime.training.utils.hooks._zero_offload_subscriber.ORTZeROOffloadPostForwardFunction") {
+      node.SetPriority(static_cast<int>(ExecutionPriority::LOCAL_HIGH));
+      modified = true;
+    }
+  } else if (graph_utils::IsSupportedOptypeVersionAndDomain(node, "PythonOpGrad", {1}, kMSDomain)) {
+    auto func_name = static_cast<std::string>(node.GetAttributes().at("func_name").s());
+    if (func_name == "onnxruntime.training.utils.hooks._zero_offload_subscriber.ORTZeROOffloadPostForwardFunction") {
+      node.SetPriority(static_cast<int>(ExecutionPriority::LOCAL_LOW));
+      modified = true;
+    } else if (func_name == "onnxruntime.training.utils.hooks._zero_offload_subscriber.ORTZeROOffloadPreForwardFunction") {
+      node.SetPriority(static_cast<int>(ExecutionPriority::LOCAL_HIGH));
+      modified = true;
+    }
+  }
+
+  if (modified)
+    rule_effect = RewriteRuleEffect::kUpdatedCurrentNode;
+
+  return Status::OK();
+}
+
+bool PythonOpPriorityRewriter::SatisfyCondition(const Graph&, const Node&, const logging::Logger&) const {
+  return true;
+}
+
 }  // namespace onnxruntime
 
 #endif
